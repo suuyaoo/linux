@@ -593,6 +593,16 @@ static struct tcmu_cmd *tcmu_alloc_cmd(struct se_cmd *se_cmd)
 	return tcmu_cmd;
 }
 
+static inline struct page *
+mem_to_page(void *addr)
+{
+	if ((!is_vmalloc_addr(addr))) {
+		return virt_to_page(addr);
+	} else {
+		return vmalloc_to_page(addr);
+	}
+}
+
 static inline void tcmu_flush_dcache_range(void *vaddr, size_t size)
 {
 	unsigned long offset = offset_in_page(vaddr);
@@ -601,7 +611,7 @@ static inline void tcmu_flush_dcache_range(void *vaddr, size_t size)
 	size = round_up(size+offset, PAGE_SIZE);
 
 	while (size) {
-		flush_dcache_page(virt_to_page(start));
+		flush_dcache_page(mem_to_page(start));
 		start += PAGE_SIZE;
 		size -= PAGE_SIZE;
 	}
