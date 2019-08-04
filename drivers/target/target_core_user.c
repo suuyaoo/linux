@@ -595,13 +595,15 @@ static struct tcmu_cmd *tcmu_alloc_cmd(struct se_cmd *se_cmd)
 
 static inline void tcmu_flush_dcache_range(void *vaddr, size_t size)
 {
-	unsigned long offset = offset_in_page(vaddr);
-	void *start = vaddr - offset;
+	void *start = vaddr;
 
-	size = round_up(size+offset, PAGE_SIZE);
+	size = round_up(size, PAGE_SIZE);
 
 	while (size) {
-		flush_dcache_page(virt_to_page(start));
+		struct page *page = virt_to_page(start);
+		if(page) {
+			flush_dcache_page(page);
+		}
 		start += PAGE_SIZE;
 		size -= PAGE_SIZE;
 	}
