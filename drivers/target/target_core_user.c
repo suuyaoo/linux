@@ -601,7 +601,10 @@ static inline void tcmu_flush_dcache_range(void *vaddr, size_t size)
 	size = round_up(size+offset, PAGE_SIZE);
 
 	while (size) {
-		flush_dcache_page(virt_to_page(start));
+		struct page * page = vmalloc_to_page(start);
+		if (page) {
+			flush_dcache_page(page);
+		}
 		start += PAGE_SIZE;
 		size -= PAGE_SIZE;
 	}
